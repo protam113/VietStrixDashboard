@@ -1,0 +1,59 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+### Added
+
+- Multi-language support for the website.
+- "Get a Quote & Order" page with smooth animations.
+- Integration of a new API for authentication.
+
+### Fixed
+
+- Improved page load performance by optimizing React Query.
+- Fixed login issue when using OAuth.
+
+### Removed
+
+- Removed `moment.js`, replaced with `date-fns` to reduce bundle size.
+
+---
+
+## [1.0.0] - 2025-03-17
+
+### Added
+
+- First official release of the website.
+- User registration and login functionality with JWT.
+- Minimalist yet modern and responsive UI.
+- **AuthStore** using Zustand for authentication state management.
+- Designed and implemented role-based authentication across the entire application.
+- Added product listing, category listing, and product filtering by category.
+- Added create product page, used with api.
+
+### Changed
+
+- Migrated package manager from **npm** to **yarn**.
+
+### Fixed
+
+- Enhanced page loading speed with Server-Side Rendering (SSR).
+- Optimized state management using Zustand.
+- Fixed layout issues across the project.
+
+---
+
+## [0.1.0] - 2025-02-23
+
+### Added
+
+- Initialized the project and designed the file structure.
+
+---
+
+**Notes:**
+
+- This format follows [Keep a Changelog](https://keepachangelog.com/).
+- Uses [Semantic Versioning](https://semver.org/).
