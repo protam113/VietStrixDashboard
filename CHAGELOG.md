@@ -21,6 +21,23 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.0.1] - 2025-03-18
+
+### Added
+
+- Add new layout for create product
+- Add get product by category
+
+### Changed
+
+- Change json create to formdata
+
+### Fixed
+
+- No Fixed
+
+---
+
 ## [1.0.0] - 2025-03-17
 
 ### Added

@@ -1,16 +1,35 @@
 /**
- Filters Interface
- **/
+ * ==========================
+ * @Filters
+ * ==========================
+ */
+
 export interface Filters {
   [key: string]: string | number | string[] | undefined;
 }
 
 /**
-PushButtonProps Interface
- **/
-export interface PushButtonProps {
+ * ==========================
+ * @PushButtonProps
+ * ==========================
+ */ export interface PushButtonProps {
   href: string;
   label: string;
+}
+
+/**
+ * ==========================
+ * @ImageItem
+ * ==========================
+ */
+
+export interface ImageItem {
+  file: File | string;
+  preview: string;
+  id: string;
+  name: string;
+  size: number;
+  type: string;
 }
 
 /**
@@ -259,9 +278,21 @@ export interface FetchProductDetailResponse {
 export interface CreateProductItem {
   title: string;
   description: string;
-  price: number;
+  price: string;
   categories: string[];
   files: File[] | string[] | null;
+  link: string;
+}
+
+/*
+  Create Product
+*/
+
+export interface CreateProductPage {
+  title: string;
+  description: string;
+  price: string;
+  categories: string[];
   link: string;
 }
 

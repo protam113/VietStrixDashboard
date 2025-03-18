@@ -7,72 +7,91 @@ import { X, Download, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Image from 'next/image';
-import { ImageItem } from '@/types/types';
+
 // Define types for the files
 type FileOrUrl = File | string;
+
+interface FileItem {
+  file: FileOrUrl;
+  preview: string;
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+}
 
 interface ImageUploaderProps {
   onChange?: (files: File[]) => void; // Changed to only return File[] to match expectation
   currentFiles?: FileOrUrl[] | null;
-  resetTrigger?: boolean;
 }
 
-export default function ImageUploader({
+export default function FilesUploader({
   onChange,
   currentFiles = [],
-  resetTrigger,
 }: ImageUploaderProps) {
-  const [files, setFiles] = useState<ImageItem[]>([]);
+  const [files, setFiles] = useState<FileItem[]>([]);
   const [previewOpen, setPreviewOpen] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const maxFileSize = 20; // MB
+  const maxFileSize = 10; // MB
 
-  useEffect(() => {
-    if (resetTrigger) {
-      setFiles([]); // Reset files khi trigger thay đổi
-    }
-  }, [resetTrigger]);
-
+  // To track if we've already processed the currentFiles
   const processedRef = useRef(false);
 
+  // Handle initial currentFiles and updates
   useEffect(() => {
+    // Skip if we've already processed the files or if there are no currentFiles
     if (!currentFiles || currentFiles.length === 0) {
       return;
     }
 
-    if (!processedRef.current) {
+    // For initial load only, or if the length changes
+    if (!processedRef.current || currentFiles.length !== files.length) {
       processedRef.current = true;
-      const fileItems = currentFiles.map((file) => ({
-        file,
-        preview: file instanceof File ? URL.createObjectURL(file) : file,
-        id: crypto.randomUUID(),
-        name:
-          file instanceof File ? file.name : file.split('/').pop() || 'image',
-        size: file instanceof File ? file.size : 0,
-        type: file instanceof File ? file.type : 'image/*',
-      }));
 
+      // Convert currentFiles to FileItem format
+      const fileItems = currentFiles.map((file) => {
+        // Check if it's a File object
+        if (file instanceof File) {
+          return {
+            file,
+            preview: URL.createObjectURL(file),
+            id: crypto.randomUUID(),
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          };
+        } else {
+          // Handle string (presumably a URL)
+          return {
+            file,
+            preview: file,
+            id: crypto.randomUUID(),
+            name:
+              typeof file === 'string'
+                ? file.split('/').pop() || 'image'
+                : 'image',
+            size: 0,
+            type: 'image/*',
+          };
+        }
+      });
+
+      // Replace all files rather than adding to existing
       setFiles(fileItems);
     }
-  }, [currentFiles]);
+  }, [currentFiles, currentFiles?.length]);
 
   // Notify parent component when files change - but only when files actually change
   useEffect(() => {
     if (onChange && files.length > 0) {
+      // Filter out string files and only return File objects
       const fileObjects = files
         .map((item) => item.file)
         .filter((file): file is File => file instanceof File);
 
-      if (
-        JSON.stringify(fileObjects) !==
-        JSON.stringify(
-          currentFiles?.filter((file): file is File => file instanceof File)
-        )
-      ) {
-        onChange(fileObjects);
-      }
+      onChange(fileObjects);
     }
-  }, [files, onChange, currentFiles]);
+  }, [files, onChange]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
@@ -86,11 +105,9 @@ export default function ImageUploader({
       type: file.type,
     }));
 
-    setFiles((prev) => {
-      const updatedFiles = [...prev, ...newFiles];
-      return updatedFiles.length !== prev.length ? updatedFiles : prev;
-    });
+    setFiles((prev) => [...prev, ...newFiles]);
 
+    // Reset input value so the same file can be uploaded again if removed
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -144,6 +161,30 @@ export default function ImageUploader({
           📷
         </div>
       );
+    } else if (['pdf'].includes(extension || '')) {
+      return (
+        <div className="w-8 h-8 bg-red-100 text-red-500 flex items-center justify-center rounded">
+          📄
+        </div>
+      );
+    } else if (['doc', 'docx'].includes(extension || '')) {
+      return (
+        <div className="w-8 h-8 bg-blue-100 text-blue-500 flex items-center justify-center rounded">
+          📝
+        </div>
+      );
+    } else if (['xls', 'xlsx'].includes(extension || '')) {
+      return (
+        <div className="w-8 h-8 bg-green-100 text-green-500 flex items-center justify-center rounded">
+          📊
+        </div>
+      );
+    } else if (['zip', 'rar'].includes(extension || '')) {
+      return (
+        <div className="w-8 h-8 bg-purple-100 text-purple-500 flex items-center justify-center rounded">
+          🗜️
+        </div>
+      );
     }
 
     return (
@@ -154,7 +195,7 @@ export default function ImageUploader({
   };
 
   return (
-    <div className="w-full max-w-md ">
+    <div className="w-full max-w-md mx-auto">
       <Card className="p-4">
         <h2 className="text-lg font-medium mb-4">Upload Files</h2>
 

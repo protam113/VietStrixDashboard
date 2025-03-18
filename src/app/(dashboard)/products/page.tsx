@@ -14,7 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
 
 //Components
 import Heading from '@/components/heading/Heading';
@@ -36,8 +35,11 @@ import ConfirmDialog from '@/components/design/Dialog';
 import { ProductList } from '@/lib/data/productLib';
 import { useDeleteProduct } from '@/hooks/Product/useProduct';
 import Container from '@/components/container/Container';
+import LoadingScreen from '@/components/Loading/LoadingScreen';
+import SelectCat from '@/components/pages/products/sidebar/selectCat';
 export default function ProductManager() {
   const router = useRouter();
+  const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
 
   const [refreshKey, setRefreshKey] = useState(0); // State to refresh data
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,6 +51,7 @@ export default function ProductManager() {
     currentPage,
     {
       page_size: pageSize,
+      category_ids: selectedCategory,
     },
     refreshKey
   );
@@ -119,7 +122,16 @@ export default function ProductManager() {
                 </SelectContent>
               </Select>
             </div>
+            <div className="flex items-center gap-4">
+              <span className="text-16 font-semibold">Category:</span>
+
+              <SelectCat
+                selectedCategories={selectedCategory}
+                onCategoryChange={(value) => setSelectedCategory(value)}
+              />
+            </div>
           </div>
+
           <div className=" col flex-col-2 md:flex gap-2">
             <Button
               className="bg-red-500 text-white"
@@ -139,7 +151,7 @@ export default function ProductManager() {
         {/* Table */}
         <div className="rounded-md border">
           {isLoading ? (
-            <Progress value={33} />
+            <LoadingScreen />
           ) : isError ? (
             <p>Error loading roles</p>
           ) : (

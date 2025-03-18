@@ -36,7 +36,7 @@ const productApi = () => {
     baseURL: apiServiceProduct,
     headers: {
       'api-key': `${apiKey}`,
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/form-data',
     },
     withCredentials: true,
     timeout: 15000, // 15 seconds timeout

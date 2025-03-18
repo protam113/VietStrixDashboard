@@ -131,20 +131,35 @@ const useProductDetail = (slug: string, refreshKey: number) => {
 const CreateProduct = async (newProduct: CreateProductItem) => {
   console.log('Input product data:', newProduct);
 
+  const formData = new FormData();
   // Chuyển dữ liệu sang JSON object, đảm bảo price là number
-  const payload = {
-    ...newProduct,
-    price: newProduct.price ? Number(newProduct.price) : 0, // Ép thành số
-    files: newProduct.files ?? null, // Đảm bảo files không bị undefined
-  };
+  // const payload = {
+  //   ...newProduct,
+  //   price: newProduct.price ? Number(newProduct.price) : 0, // Ép thành số
+  //   files: newProduct.files ?? null, // Đảm bảo files không bị undefined
+  // };
+  for (const key in newProduct) {
+    const value = newProduct[key as keyof CreateProductItem];
 
-  console.log('Submitting JSON payload:', payload);
+    if (key === 'categories' && Array.isArray(value)) {
+      // Xử lý category
+      value.forEach((id) => formData.append('categories', id));
+    } // Nếu là mảng file
+    if (key === 'files' && Array.isArray(value)) {
+      value.forEach((file) => formData.append('files', file));
+    } else if (value) {
+      // Thêm các trường khác
+      formData.append(key, value as string);
+    }
+  }
+
+  console.log('Submitting JSON payload:', formData);
 
   try {
     const response = await handleProductAPI(
       `${endpoints.products}`,
       'POST',
-      JSON.stringify(payload) // Gửi JSON thay vì FormData
+      formData
     );
 
     logTable('Product Data:', response.data);
