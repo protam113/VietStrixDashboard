@@ -7,6 +7,7 @@ import {
   CreateCategoryItem,
   FetchCategoryListResponse,
   EditCategoryItem,
+  DeleteCategoryItem,
 } from '@/types/types';
 import { handleAPI, handleProductAPI } from '@/api/axiosClient';
 import { toast } from 'sonner';
@@ -254,12 +255,23 @@ const useEditCategory = () => {
 Delete Category
  **/
 
-const DeleteCategory = async (deleteRole: { ids: string[] }) => {
+const DeleteCategory = async (deleteCategory: { ids: string[] }) => {
+  const formData = new FormData();
+
+  for (const key in deleteCategory) {
+    const value = deleteCategory[key as keyof DeleteCategoryItem];
+
+    if (key === 'ids' && Array.isArray(value)) {
+      value.forEach((id) => formData.append('ids', id));
+    } else if (typeof value === 'string') {
+      formData.append(key, value);
+    }
+  }
   try {
     const response = await handleProductAPI(
       `${endpoints.categories}`,
       'DELETE',
-      deleteRole
+      formData
     );
     return response.data;
   } catch (error: any) {
@@ -274,7 +286,7 @@ const useDeleteCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (deleteCategory: { ids: string[] }) => {
+    mutationFn: async (deleteCategory: DeleteCategoryItem) => {
       return DeleteCategory(deleteCategory);
     },
     onSuccess: () => {

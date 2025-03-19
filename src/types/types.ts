@@ -126,7 +126,7 @@ export interface CreateEmployeeItem {
 }
 
 export interface CreateEmployeeResponse {
-  employees: Employee[];
+  employees: CreateEmployeeItem[];
 }
 
 // ========================
@@ -192,6 +192,14 @@ export interface CreateCategoryItem {
 
 export interface EditCategoryItem {
   title: string;
+}
+
+/*
+  Delete Category
+*/
+
+export interface DeleteCategoryItem {
+  ids: string[];
 }
 
 // ========================

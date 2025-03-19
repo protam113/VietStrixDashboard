@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  vietstrixdashboard:
+    container_name: vietstrixdashboard
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '80:3000' # Prod thường chạy trên cổng 80
+    env_file:
+      - .env.prod
+    restart: unless-stopped
+    networks:
+      - vietstrix_network
+
+networks:
+  vietstrix_network:
+    driver: bridge

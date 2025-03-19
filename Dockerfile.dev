@@ -1,0 +1,16 @@
+# Base image
+FROM node:20-alpine AS dev
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY package.json yarn.lock ./
+RUN yarn install
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 3000
+
+# Start Next.js in development mode
+CMD ["yarn", "dev"]

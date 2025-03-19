@@ -1,4 +1,4 @@
-// components/PushButton.tsx
+// components/button/PushButton.tsx
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { FaArrowRight } from 'react-icons/fa';

@@ -46,7 +46,6 @@ export const EmployeeColumns = [
   { key: 'username', label: 'Username', className: 'font-medium' },
   { key: 'name', label: 'Name', className: 'font-medium' },
   { key: 'email', label: 'Email', className: 'font-medium' },
-  { key: 'dob', label: 'DOB', className: 'font-medium' },
   { key: 'position', label: 'Position', className: 'font-medium' },
   { key: 'role', label: 'Role', className: 'font-medium' },
 ];

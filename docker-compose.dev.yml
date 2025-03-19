@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  vietstrixdashboard:
+    container_name: dashboard
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - vietstrixDashboard_network
+
+networks:
+  vietstrixDashboard_network:
+    driver: bridge

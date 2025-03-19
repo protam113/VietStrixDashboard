@@ -4,12 +4,21 @@ import { endpoints } from '@/api/api';
 import {
   FetchEmployeeListResponse,
   Filters,
-  CreateRoleItem,
+  CreateEmployeeResponse,
 } from '@/types/types';
 import { handleAPI } from '@/api/axiosClient';
 import { toast } from 'sonner';
+import { logTable } from '@/lib/logger';
 
-// Hàm fetch danh sách employee
+/**
+ * ==========================
+ * 📌 @HOOK useEmployeeList
+ * ==========================
+ *
+ * @desc Custom hook to get list of employee
+ * @returns {Employee} List of employee
+ */
+
 const fetchEmployeeList = async (
   pageParam: number = 1,
   filters: Filters
@@ -52,4 +61,59 @@ const useEmployeeList = (
   });
 };
 
-export { useEmployeeList };
+/**
+ * ========== END OF @HOOK useEmployeeList ==========
+ */
+
+/**
+ * ==========================
+ * 📌 @HOOK useCreate Employee
+ * ==========================
+ *
+ * @desc Custom hook to create employee
+ * @returns {Employee} Detail of employee
+ */
+
+const CreateEmployee = async (newEmployee: CreateEmployeeResponse) => {
+  console.log('Input employee data:', newEmployee);
+
+  try {
+    const response = await handleAPI(
+      `${endpoints.employees}`,
+      'POST',
+      JSON.stringify(newEmployee)
+    );
+
+    logTable('Employee Data:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error creating employee:', error.response?.data);
+    throw new Error(
+      error.response?.data?.message || 'Failed to create employee'
+    );
+  }
+};
+
+const useCreateEmployee = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newEmployee: CreateEmployeeResponse) => {
+      return CreateEmployee(newEmployee);
+    },
+    onSuccess: () => {
+      toast.success('Create Employee Success!');
+      queryClient.invalidateQueries({ queryKey: ['employeeList'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to create employee.');
+      console.error(error.message || 'Failed to create employee.');
+    },
+  });
+};
+
+/**
+ * ========== END OF @HOOK useCreateEmployee ==========
+ */
+
+export { useEmployeeList, useCreateEmployee };

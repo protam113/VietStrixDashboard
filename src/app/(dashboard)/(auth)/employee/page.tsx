@@ -182,10 +182,6 @@ const Page = () => {
                         {col.key === 'username' && employee.username}
                         {col.key === 'name' && employee.name}
                         {col.key === 'email' && employee.email}
-                        {col.key === 'dob' &&
-                          (employee.dob instanceof Date
-                            ? employee.dob.toLocaleDateString()
-                            : employee.dob)}
                         {col.key === 'position' && employee.position}
                         {col.key === 'role' && employee.role.title}
                       </TableCell>

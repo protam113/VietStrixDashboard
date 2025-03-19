@@ -21,6 +21,20 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [1.0.2] - 2025-03-19
+
+### Added
+
+- Add Docker , Dockerfile for dev & prod
+- Create Hook for create employee and page for create employee
+- Create Page for create employee
+
+### Changed
+
+### Fixed
+
+---
+
 ## [1.0.1] - 2025-03-18
 
 ### Added
