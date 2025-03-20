@@ -16,6 +16,7 @@ import { Loader, Trash2 } from 'lucide-react';
 import { RefreshButton } from '@/components/button/RefreshButton';
 
 import { AlertCircle } from 'lucide-react';
+import Container from '@/components/container/Container';
 
 const Page = () => {
   const [refreshKey, setRefreshKey] = useState(0); // State to refresh data
@@ -32,7 +33,7 @@ const Page = () => {
   };
 
   return (
-    <main className="container mx-auto py-10 w-max-6xl">
+    <Container>
       <Heading name="Employee Page" />
       <div className="md:flex col flex-col-2 md:flex-row justify-between items-center mb-6">
         <RefreshButton onClick={handleRefresh} />
@@ -115,7 +116,7 @@ const Page = () => {
           </TableBody>
         </Table>
       </div>
-    </main>
+    </Container>
   );
 };
 

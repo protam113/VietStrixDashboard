@@ -26,21 +26,151 @@ import {
   SelectItem,
   SelectValue,
 } from '@/components/ui/select';
-//Data
+import NoResultsFound from '@/components/design/NoResultsFound';
 //Types
 import { ProductColumns } from '@/types/columns';
 //Hooks
-
+import { motion } from 'framer-motion';
 import ConfirmDialog from '@/components/design/Dialog';
 import { ProductList } from '@/lib/data/productLib';
 import { useDeleteProduct } from '@/hooks/Product/useProduct';
 import Container from '@/components/container/Container';
-import LoadingScreen from '@/components/Loading/LoadingScreen';
+// import LoadingScreen from '@/components/Loading/LoadingScreen';
 import SelectCat from '@/components/pages/products/sidebar/selectCat';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ProductTableProps } from '@/types/componentsType';
+
+export const ProductTable: React.FC<ProductTableProps> = ({
+  products,
+  isLoading,
+  isError,
+  selectedProducts,
+  onSelectProduct,
+  onDeleteClick,
+}) => {
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead></TableHead>
+            {ProductColumns.map((col) => (
+              <TableHead key={col.key} className={col.className}>
+                {col.label}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isError ? (
+            <TableRow>
+              <TableCell
+                colSpan={ProductColumns.length + 1}
+                className="text-center"
+              >
+                <NoResultsFound />
+              </TableCell>
+            </TableRow>
+          ) : isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <Skeleton className="h-4 w-4 rounded" />
+                </TableCell>
+                {ProductColumns.map((col) => (
+                  <TableCell key={col.key} className={col.className}>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : products.length > 0 ? (
+            products.map((product, index) => (
+              <motion.tr
+                key={product.id}
+                className="border-b"
+                initial={{ backgroundColor: 'rgba(243, 244, 246, 0)' }}
+                animate={{
+                  backgroundColor:
+                    hoveredRow === product.id
+                      ? 'rgba(243, 244, 246, 0.5)'
+                      : 'rgba(243, 244, 246, 0)',
+                  y: hoveredRow === product.id ? -2 : 0,
+                }}
+                transition={{ duration: 0.1 }}
+                onMouseEnter={() => setHoveredRow(product.id)}
+                onMouseLeave={() => setHoveredRow(null)}
+                style={{
+                  willChange: 'transform',
+                  transform: 'translateZ(0)',
+                }}
+              >
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    checked={selectedProducts.includes(product.id)}
+                    onChange={() => onSelectProduct(product.id)}
+                  />
+                </TableCell>
+                {ProductColumns.map((col) => (
+                  <TableCell key={col.key} className={col.className}>
+                    {col.key === 'id' ? product.id.substring(0, 8) + '...' : ''}
+                    {col.key === 'number' ? index + 1 : ''}
+                    {col.key === 'detail' ? (
+                      <Button variant="outline" size="icon">
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">Detail</span>
+                      </Button>
+                    ) : null}
+                    {col.key === 'title' ? product.title : ''}
+                    {col.key === 'price' ? product.price : ''}
+                    {col.key === 'categories'
+                      ? product.categories
+                          ?.map((category) => category.title)
+                          .join(', ') || ''
+                      : ''}
+                    {col.key === 'actions' ? (
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon">
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => onDeleteClick(product.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    ) : null}
+                  </TableCell>
+                ))}
+              </motion.tr>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={ProductColumns.length + 1}
+                className="text-center"
+              >
+                <NoResultsFound />
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
+
 export default function ProductManager() {
   const router = useRouter();
   const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
-
   const [refreshKey, setRefreshKey] = useState(0); // State to refresh data
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -150,96 +280,14 @@ export default function ProductManager() {
 
         {/* Table */}
         <div className="rounded-md border">
-          {isLoading ? (
-            <LoadingScreen />
-          ) : isError ? (
-            <p>Error loading roles</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead></TableHead>
-                  {ProductColumns.map((col) => (
-                    <TableHead key={col.key} className={col.className}>
-                      {col.label}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {products && products.length > 0 ? (
-                  products.map((product, index) => (
-                    <TableRow key={product.id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedProducts.includes(product.id)}
-                          onChange={() => handleSelectProduct(product.id)}
-                        />
-                      </TableCell>
-                      {ProductColumns.map((col) => {
-                        return (
-                          <TableCell key={col.key} className={col.className}>
-                            {col.key === 'id'
-                              ? product.id.substring(0, 8) + '...'
-                              : ''}
-                            {col.key === 'number' ? index + 1 : ''}{' '}
-                            {col.key === 'detail' ? (
-                              <div className="justify-center">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() =>
-                                    router.push(`/products/${product.slug}`)
-                                  }
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  <span className="sr-only">Detail</span>
-                                </Button>
-                              </div>
-                            ) : null}
-                            {col.key === 'title' ? product.title : ''}
-                            {col.key === 'price' ? product.price : ''}
-                            {col.key === 'categories'
-                              ? product.categories
-                                  ?.map((category) => category.title)
-                                  .join(', ') || ''
-                              : ''}
-                            {col.key === 'actions' ? (
-                              <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="icon">
-                                  <Pencil className="h-4 w-4" />
-                                  <span className="sr-only">Edit</span>
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="text-destructive"
-                                  onClick={() => handleDeleteClick(product.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                  <span className="sr-only">Delete</span>
-                                </Button>
-                              </div>
-                            ) : null}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={ProductColumns.length + 1}
-                      className="text-center text-gray-500"
-                    >
-                      No data available
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
+          <ProductTable
+            products={products}
+            isLoading={isLoading}
+            isError={isError}
+            selectedProducts={selectedProducts}
+            onSelectProduct={handleSelectProduct}
+            onDeleteClick={handleDeleteClick}
+          />
         </div>
         <CustomPagination
           currentPage={currentPage}

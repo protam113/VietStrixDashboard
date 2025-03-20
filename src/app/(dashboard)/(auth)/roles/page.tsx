@@ -45,6 +45,7 @@ import { RoleColumns } from '@/types/columns';
 //Hooks
 import { useCreateRole, useDeleteRole } from '@/hooks/Role/useRoles';
 import EditRole from '@/components/pages/role/EditRole';
+import Container from '@/components/container/Container';
 
 export default function RoleManager() {
   const [refreshKey, setRefreshKey] = useState(0); // State to refresh data
@@ -133,7 +134,7 @@ export default function RoleManager() {
   };
   return (
     <>
-      <div className="container mx-auto py-10 w-max-6xl">
+      <Container>
         <Heading name="Roles Page" />
 
         <div className="md:flex col flex-col-2 md:flex-row justify-between items-center mb-6">
@@ -300,7 +301,7 @@ export default function RoleManager() {
           totalPage={pagination.total_page}
           onPageChange={handlePageChange}
         />
-      </div>
+      </Container>
       {/* Edit role */}
       <ConfirmDialog
         open={deleteDialogOpen}

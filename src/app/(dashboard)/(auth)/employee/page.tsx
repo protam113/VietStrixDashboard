@@ -28,6 +28,7 @@ import { Input } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/useDebounce';
 import PushButton from '@/components/button/PushButton';
 import { CustomPagination } from '@/components/design/pagination';
+import Container from '@/components/container/Container';
 
 const Page = () => {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -70,7 +71,7 @@ const Page = () => {
   };
 
   return (
-    <main className="container mx-auto py-10 w-max-6xl">
+    <Container>
       <div className="flex justify-between items-center w-full">
         <div className="flex-1">
           <Heading name="Employee Page" />
@@ -223,7 +224,7 @@ const Page = () => {
         totalPage={pagination.total_page}
         onPageChange={handlePageChange}
       />
-    </main>
+    </Container>
   );
 };
 

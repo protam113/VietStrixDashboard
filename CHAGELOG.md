@@ -19,6 +19,23 @@ All notable changes to this project will be documented in this file.
 
 - Removed `moment.js`, replaced with `date-fns` to reduce bundle size.
 
+## [1.0.4] - 2025-03-20
+
+### Added
+
+- Design a new NoResults components
+
+### Changed
+
+- Refactored `authstore` to optimize authentication and authorization, with added descriptive notes for hooks.
+- Optimized constants to improve metadata handling.
+- Split the products table and products page
+
+### Fixed
+
+- Fixed server-side rendering issues.
+- Fix loading & error design for show products pages.
+
 ---
 
 ## [1.0.2] - 2025-03-19

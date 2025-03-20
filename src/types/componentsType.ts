@@ -1,3 +1,5 @@
+import { useRouter } from 'next/navigation';
+
 /**
  * ==========================
  * 📌 @HEADER
@@ -50,4 +52,36 @@ export interface StatsCardsProps {
 
 export interface WelcomeBannerProps {
   message?: string;
+}
+
+/**
+ * ==========================
+ * 📌 @props ProductTableProps
+ * ==========================
+ */
+
+export interface ProductTableProps {
+  products: any[];
+  isLoading: boolean;
+  isError: boolean;
+  selectedProducts: string[];
+  onSelectProduct: (id: string) => void;
+  onDeleteClick: (id: string) => void;
+}
+
+/**
+ * ==========================
+ * 📌 @props CategoryTableProps
+ * ==========================
+ */
+
+export interface CategoryTableProps {
+  categories: any[];
+  isLoading: boolean;
+  isError: boolean;
+  selectedCategories: string[];
+  setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
+  handleSelectCategory: (id: string) => void;
+  handleDeleteClick: (id: string) => void;
+  router: ReturnType<typeof useRouter>; // ✅ Cách sửa đúng
 }

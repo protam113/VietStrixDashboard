@@ -3,6 +3,8 @@
 import { useParams } from 'next/navigation';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CategoryDetail } from '@/lib/data/categoriesLib';
+import Container from '@/components/container/Container';
+import BackButton from '@/components/button/BackButton';
 
 const Page = () => {
   const { slug } = useParams();
@@ -14,10 +16,13 @@ const Page = () => {
     return <p className="text-red-500">Category not found.</p>;
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-2xl font-bold">{category.title}</h1>
-      <p className="text-gray-600">{category.slug}</p>
-    </div>
+    <Container>
+      <BackButton />
+      <main className="mt-8">
+        <h1 className="text-2xl font-bold">{category.title}</h1>
+        <p className="text-gray-600">{category.slug}</p>
+      </main>
+    </Container>
   );
 };
 

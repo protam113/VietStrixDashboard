@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { apiServiceAuth, endpoints } from '@/api/api';
 import { toast } from 'sonner';
+import { logDebug, logError, logWarn } from '@/lib/logger';
 
-const apiHandle = apiServiceAuth;
 // Define proper types for user data
 interface UserRole {
   id: string;
@@ -42,50 +42,157 @@ interface AuthState {
   logout: () => Promise<void>;
   fetchUserInfo: () => Promise<void>;
   checkAuth: () => Promise<void>;
+  clearError: () => void;
 }
 
-// API key from environment variables
-const getApiKey = () => process.env.NEXT_PUBLIC_API_KEY || '';
+/**
+ * ==========================
+ * 📌 @CLASS AuthAPI
+ * ==========================
+ *
+ * @desc Authentication API service responsible for user authentication operations such as login, logout, and fetching user details.
+ * This class provides static methods to communicate with the authentication service.
+ *
+ * @method getApiKey - Retrieves the API key from environment variables for authentication.
+ * @method getHeaders - Constructs the necessary headers for API requests, including content type and API key.
+ * @method login - Sends a login request with the provided username and password, returning authentication status.
+ * @method getCurrentUser - Fetches details of the currently authenticated user.
+ * @method logout - Logs the user out by invalidating their session on the server.
+ *
+ * @example
+ * ```ts
+ * const { response, data } = await AuthAPI.login("user@example.com", "password123");
+ * if (response.ok) {
+ *    console.log("Login successful", data);
+ * } else {
+ *    console.error("Login failed", data);
+ * }
+ * ```
+ */
 
-// Common headers for API requests
-const getHeaders = () => {
-  const headers = new Headers();
-  headers.append('Content-Type', 'application/json');
-  headers.append('api-key', getApiKey());
-  return headers;
-};
-
-// Utility functions for managing cookies manually (without js-cookie)
-const setCookie = (
-  name: string,
-  value: string,
-  options: {
-    expires?: number;
-    secure?: boolean;
-    sameSite?: 'Strict' | 'Lax' | 'None';
-  } = {}
-) => {
-  let cookieString = `${name}=${encodeURIComponent(value)}`;
-
-  if (options.expires) {
-    const date = new Date();
-    date.setTime(date.getTime() + options.expires * 24 * 60 * 60 * 1000);
-    cookieString += `; expires=${date.toUTCString()}`;
+class AuthAPI {
+  /**
+   * Retrieves the API key from environment variables.
+   * @private
+   * @returns {string} API key for authentication requests.
+   */
+  private static getApiKey() {
+    return process.env.NEXT_PUBLIC_API_KEY || '';
   }
 
-  cookieString += '; path=/';
-  if (options.secure && process.env.NODE_ENV === 'production')
-    cookieString += '; Secure';
-  if (options.sameSite) cookieString += `; SameSite=${options.sameSite}`;
+  /**
+   * Constructs the necessary headers for API requests.
+   * @private
+   * @returns {Headers} HTTP headers with Content-Type and API key.
+   */
+  private static getHeaders() {
+    const headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    headers.append('api-key', this.getApiKey());
+    return headers;
+  }
 
-  document.cookie = cookieString; // Note: HttpOnly cannot be set via JS
+  /**
+   * Authenticates a user with their username and password.
+   * @static
+   * @param {string} username - The username of the user.
+   * @param {string} password - The password of the user.
+   * @returns {Promise<{ response: Response, data: any }>} Response object and parsed data from API.
+   */
+  static async login(username: string, password: string) {
+    const response = await fetch(`${apiServiceAuth}${endpoints.login}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ username, password }),
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+    return { response, data };
+  }
+
+  /**
+   * Fetches the currently authenticated user's details.
+   * @static
+   * @returns {Promise<{ response: Response, data: any }>} Response object and user data.
+   */
+  static async getCurrentUser() {
+    const response = await fetch(`${apiServiceAuth}${endpoints.currentUser}`, {
+      method: 'GET',
+      headers: this.getHeaders(),
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+    return { response, data };
+  }
+
+  /**
+   * Logs the user out by clearing their session.
+   * @static
+   * @returns {Promise<{ response: Response, data: any }>} Response object and API response data.
+   */
+  static async logout() {
+    const response = await fetch(`${apiServiceAuth}${endpoints.logout}`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      credentials: 'include',
+    });
+
+    const data = await response.json();
+    return { response, data };
+  }
+}
+
+// Cookie management helpers
+class CookieManager {
+  static set(
+    name: string,
+    value: string,
+    options: {
+      expires?: number;
+      secure?: boolean;
+      sameSite?: 'Strict' | 'Lax' | 'None';
+    } = {}
+  ) {
+    let cookieString = `${name}=${encodeURIComponent(value)}`;
+
+    if (options.expires) {
+      const date = new Date();
+      date.setTime(date.getTime() + options.expires * 24 * 60 * 60 * 1000);
+      cookieString += `; expires=${date.toUTCString()}`;
+    }
+
+    cookieString += '; path=/';
+
+    if (options.secure && process.env.NODE_ENV === 'production')
+      cookieString += '; Secure';
+
+    if (options.sameSite) cookieString += `; SameSite=${options.sameSite}`;
+
+    document.cookie = cookieString;
+  }
+
+  static delete(name: string) {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; ${
+      process.env.NODE_ENV === 'production' ? 'Secure;' : ''
+    } SameSite=Lax;`;
+  }
+
+  static check(name: string): boolean {
+    return document.cookie.includes(`${name}=true`);
+  }
+}
+
+// Centralized error handling
+const handleAuthError = (error: unknown): string => {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return 'An unknown error occurred';
 };
 
-const deleteCookie = (name: string) => {
-  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; ${process.env.NODE_ENV === 'production' ? 'Secure;' : ''} SameSite=Lax;`;
-};
-
-// Zustand store with correct typing
+// Zustand store with correct typing and performance optimizations
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
@@ -94,208 +201,254 @@ export const useAuthStore = create<AuthState>()(
       error: null,
       userInfo: null,
 
-      // Login function with specific error handling
+      clearError: () => set({ error: null }),
+
+      /**
+       * ==========================
+       * 📌 @HOOK useLoginAuthStore
+       * ==========================
+       *
+       * @desc Custom hook for managing user authentication.
+       * It provides login functionality, authentication state, and error handling.
+       *
+       * @returns {Object} Authentication store
+       * @returns {boolean} return.isAuthenticated - Whether the user is authenticated.
+       * @returns {User | null} return.userInfo - The currently logged-in user.
+       * @returns {boolean} return.loading - Indicates if a login request is in progress.
+       * @returns {string | null} return.error - Stores the error message if login fails.
+       * @returns {(username: string, password: string) => Promise<boolean>} return.login - Handles user login.
+       * @returns {() => Promise<void>} return.checkAuth - Validates user authentication status.
+       */
+
       login: async (username: string, password: string): Promise<boolean> => {
         try {
           set({ loading: true, error: null });
 
-          const response = await fetch(`${apiHandle}${endpoints.login}`, {
-            method: 'POST',
-            headers: getHeaders(),
-            body: JSON.stringify({ username, password }),
-            credentials: 'include',
-          });
+          const { response, data } = await AuthAPI.login(username, password);
 
           if (!response.ok) {
             if (response.status === 401 || response.status === 400) {
-              // Không gọi checkAuth nếu lỗi 401 hoặc 400
               throw new Error(
                 'Incorrect login information, please check your account and password'
               );
             }
-            const { message } = await response.json();
-            throw new Error(message || 'Login failed');
+            throw new Error(data.message || 'Login failed');
           }
 
-          const { status, message } = await response.json();
-
-          if (status === 'success') {
-            setCookie('isAuthenticated', 'true', {
+          if (data.status === 'success') {
+            CookieManager.set('isAuthenticated', 'true', {
               expires: 7,
               secure: true,
               sameSite: 'Lax',
             });
 
-            // Chỉ gọi checkAuth khi đăng nhập thành công (status 200)
+            // Only call checkAuth on successful login
             await get().checkAuth();
-            set({ isAuthenticated: true, loading: false });
+            // Fetch user info after successful login
+            logDebug('User info fetched successfully');
             toast.success('Login successful! Redirecting to home page..');
             return true;
           } else {
-            throw new Error(message || 'Login failed');
+            throw new Error(data.message || 'Login failed');
           }
         } catch (error) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred';
+          const errorMessage = handleAuthError(error);
+
+          // Atomically update state to prevent multiple renders
           set({
             isAuthenticated: false,
             userInfo: null,
             loading: false,
             error: errorMessage,
           });
-          deleteCookie('isAuthenticated');
+
+          CookieManager.delete('isAuthenticated');
           localStorage.removeItem('auth-storage');
           toast.error(errorMessage);
           return false;
         }
       },
 
-      // Fetch user information
+      /**
+       * ==========================
+       * 📌 @HOOK useFetchUserInfo
+       * ==========================
+       *
+       * @desc Custom hook for fetching user information.
+       *
+       * @returns {Object} User information store
+       * @returns {User | null} return.userInfo - The currently logged-in user.
+       * **/
+
       fetchUserInfo: async () => {
         if (!get().isAuthenticated) return;
 
         try {
           set({ loading: true });
 
-          const response = await fetch(`${apiHandle}${endpoints.currentUser}`, {
-            method: 'GET',
-            headers: getHeaders(),
-            credentials: 'include',
-          });
+          const { response, data } = await AuthAPI.getCurrentUser();
 
           if (!response.ok) {
             throw new Error('Failed to fetch user info');
           }
 
-          const { status, data } = await response.json();
-
-          if (status === 'success' && data) {
-            set({ userInfo: data, loading: false });
+          if (data.status === 'success' && data.data) {
+            // Only update userInfo to prevent unnecessary renders
+            set({ userInfo: data.data, loading: false });
           } else {
             throw new Error('Invalid user data received');
           }
         } catch (error) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'Failed to fetch user information';
+          const errorMessage = handleAuthError(error);
           set({ loading: false, error: errorMessage });
           toast.error(errorMessage);
         }
       },
 
-      // Logout function
+      /**
+       * ==========================
+       * 📌 @HOOK logout
+       * ==========================
+       *
+       * @desc Custom hook for handling user logout.
+       *
+       * @returns {Object} Logout store
+       * @returns {() => Promise<void>} return.logout - Handles user logout.
+       **/
       logout: async () => {
         try {
           set({ loading: true });
 
-          const response = await fetch(`${apiHandle}${endpoints.logout}`, {
-            method: 'POST',
-            headers: getHeaders(),
-            credentials: 'include',
-          });
+          // Try server logout but don't depend on it for local logout
+          try {
+            const { response } = await AuthAPI.logout();
 
-          if (!response.ok) {
-            throw new Error('Failed to logout on server');
+            if (!response.ok) {
+              console.warn(
+                'Server logout failed, continuing with local logout'
+              );
+            }
+          } catch (error) {
+            // Log but proceed with local logout even if server logout fails
+            logWarn('Server logout error:', error);
           }
 
-          const { status, message } = await response.json();
-          if (status !== 'success') {
-            throw new Error(message || 'Logout failed');
-          }
+          // Always perform local logout
+          CookieManager.delete('isAuthenticated');
+          localStorage.removeItem('auth-storage');
 
-          // Xóa cookie và trạng thái
-          deleteCookie('isAuthenticated');
           set({
             isAuthenticated: false,
             userInfo: null,
             loading: false,
             error: null,
           });
-          localStorage.removeItem('auth-storage');
 
           toast.success('Log out successfully!');
-
-          // Chuyển hướng ngay lập tức
           window.location.href = '/login';
         } catch (error) {
-          const errorMessage =
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred';
-          console.error('Error during logout:', errorMessage);
+          // This catch block should rarely be hit due to the try/catch in the server logout
+          logError('Catastrophic error during logout:', error);
 
-          // Xóa cookie và trạng thái
-          deleteCookie('isAuthenticated');
+          // Force logout anyway
+          CookieManager.delete('isAuthenticated');
+          localStorage.removeItem('auth-storage');
+
           set({
             isAuthenticated: false,
             userInfo: null,
             loading: false,
-            error: errorMessage,
+            error: handleAuthError(error),
           });
-          localStorage.removeItem('auth-storage');
 
-          // Chuyển hướng ngay lập tức
           window.location.href = '/login';
         }
       },
 
-      // Check authentication status
+      /**
+       * ==========================
+       * 📌 @HOOK useCheckAuthStore
+       * ==========================
+       *
+       * @desc Custom hook for checking user authentication status.
+       *
+       * @returns {Object} Authentication status store
+       * @returns {boolean} return.isAuthenticated - Whether the user is authenticated.
+       * @returns {() => Promise<void>} return.checkAuth - Validates user authentication status.
+       * */
+
       checkAuth: async () => {
-        // Kiểm tra cookie trước khi gọi API
-        const isAuthenticatedCookie = document.cookie.includes(
-          'isAuthenticated=true'
-        );
-        if (!isAuthenticatedCookie) {
+        // Check cookie first before making API call
+        if (!CookieManager.check('isAuthenticated')) {
           set({ isAuthenticated: false, userInfo: null, loading: false });
           localStorage.removeItem('auth-storage');
           return;
         }
 
         try {
-          const response = await fetch(`${apiHandle}${endpoints.currentUser}`, {
-            method: 'GET',
-            headers: getHeaders(),
-            credentials: 'include',
-          });
+          set((state) => ({ ...state, loading: true })); // Only update loading
+
+          const { response, data } = await AuthAPI.getCurrentUser();
 
           if (!response.ok) {
             throw new Error('Failed to fetch user data');
           }
 
-          const { status, data } = await response.json();
-
-          if (status === 'success' && data) {
-            const userRole = data.role?.title;
-            console.log('User role:', userRole);
-
+          if (data.status === 'success' && data.data) {
+            const userRole = data.data.role?.title;
             const allowedRoles = ['employee', 'admin', 'manager'];
 
             if (!allowedRoles.includes(userRole)) {
-              console.warn(`Unauthorized role: ${userRole}. Logging out...`);
+              logWarn(`Unauthorized role: ${userRole}. Logging out...`);
               toast.error('You do not have access. Logging out...');
-              deleteCookie('isAuthenticated');
+
+              // Clean up and logout
+              CookieManager.delete('isAuthenticated');
               localStorage.removeItem('auth-storage');
-              get().logout();
+
+              // Call logout without making another API call
+              set({
+                isAuthenticated: false,
+                userInfo: null,
+                loading: false,
+                error: null,
+              });
+
+              window.location.href = '/login';
               return;
             }
 
-            setCookie('isAuthenticated', 'true', {
+            // Extend authentication cookie
+            CookieManager.set('isAuthenticated', 'true', {
               expires: 7,
               secure: true,
               sameSite: 'Lax',
             });
-            set({ isAuthenticated: true, userInfo: data, loading: false });
+
+            set({
+              isAuthenticated: true,
+              userInfo: data.data,
+              loading: false,
+            });
           } else {
             throw new Error('Invalid user data received');
           }
         } catch (error) {
-          console.error('checkAuth error:', error);
-          deleteCookie('isAuthenticated');
+          logError('checkAuth error:', error);
+
+          // Clean up and redirect
+          CookieManager.delete('isAuthenticated');
           localStorage.removeItem('auth-storage');
-          get().logout();
+
+          set({
+            isAuthenticated: false,
+            userInfo: null,
+            loading: false,
+            error: null,
+          });
+
+          // Skip calling get().logout() to avoid multiple API calls
+          window.location.href = '/login';
         }
       },
     }),
@@ -310,19 +463,24 @@ export const useAuthStore = create<AuthState>()(
       ): { isAuthenticated: boolean; userInfo: PersistedUserInfo | null } => ({
         isAuthenticated: state.isAuthenticated,
         userInfo: state.userInfo
-          ? { id: state.userInfo.id, role: state.userInfo.role } // Only store id and role
+          ? {
+              id: state.userInfo.id,
+              role: state.userInfo.role,
+            }
           : null,
       }),
     }
   )
 );
 
-// Utility function for making authenticated requests
+// Utility function for making authenticated requests with better error handling
 export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-  const headers = {
-    ...getHeaders(),
-    ...((options.headers as Record<string, string>) || {}),
-  };
+  // Ensure a single function is used for building headers
+  const headers = new Headers(options.headers);
+
+  // Add auth headers
+  headers.append('Content-Type', 'application/json');
+  headers.append('api-key', process.env.NEXT_PUBLIC_API_KEY || '');
 
   try {
     const response = await fetch(url, {
@@ -331,6 +489,7 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
       credentials: 'include',
     });
 
+    // Logout on authentication failure
     if (response.status === 401) {
       useAuthStore.getState().logout();
       return null;

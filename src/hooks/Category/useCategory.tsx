@@ -286,7 +286,7 @@ const useDeleteCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (deleteCategory: DeleteCategoryItem) => {
+    mutationFn: async (deleteCategory: { ids: string[] }) => {
       return DeleteCategory(deleteCategory);
     },
     onSuccess: () => {

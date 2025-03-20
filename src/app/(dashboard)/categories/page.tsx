@@ -25,7 +25,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Progress } from '@/components/ui/progress';
 
 //Components
 import Heading from '@/components/heading/Heading';
@@ -49,15 +48,130 @@ import {
 } from '@/hooks/Category/useCategory';
 import { toast } from 'sonner';
 import ConfirmDialog from '@/components/design/Dialog';
+import { Skeleton } from '@/components/ui/skeleton';
+import NoResultsFound from '@/components/design/NoResultsFound';
+import Container from '@/components/container/Container';
+import { CategoryTableProps } from '@/types/componentsType';
+
+export const CategoryTable: React.FC<CategoryTableProps> = ({
+  categories,
+  isLoading,
+  isError,
+  selectedCategories,
+  handleSelectCategory,
+  handleDeleteClick,
+  router,
+}) => {
+  return (
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-10">
+              <input type="checkbox" disabled />
+            </TableHead>
+            {CategoryColumns.map((col) => (
+              <TableHead key={col.key} className={col.className}>
+                {col.label}
+              </TableHead>
+            ))}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {isError ? (
+            <TableRow>
+              <TableCell
+                colSpan={CategoryColumns.length + 1}
+                className="text-center"
+              >
+                <NoResultsFound />
+              </TableCell>
+            </TableRow>
+          ) : isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <TableRow key={index}>
+                <TableCell>
+                  <Skeleton className="h-4 w-4 rounded" />
+                </TableCell>
+                {CategoryColumns.map((col) => (
+                  <TableCell key={col.key} className={col.className}>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : categories && categories.length > 0 ? (
+            categories.map((category) => (
+              <TableRow key={category.id}>
+                <TableCell>
+                  <input
+                    type="checkbox"
+                    checked={selectedCategories.includes(category.id)}
+                    onChange={() => handleSelectCategory(category.id)}
+                  />
+                </TableCell>
+                {CategoryColumns.map((col) => (
+                  <TableCell key={col.key} className={col.className}>
+                    {col.key === 'id'
+                      ? category.id.substring(0, 8) + '...'
+                      : ''}
+                    {col.key === 'detail' ? (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() =>
+                          router.push(`/categories/${category.slug}`)
+                        }
+                      >
+                        <Eye className="h-4 w-4" />
+                        <span className="sr-only">Detail</span>
+                      </Button>
+                    ) : null}
+                    {col.key === 'title' ? category.title : ''}
+                    {col.key === 'actions' ? (
+                      <div className="flex justify-end gap-2">
+                        <Button variant="outline" size="icon">
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">Edit</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          className="text-destructive"
+                          onClick={() => handleDeleteClick(category.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                      </div>
+                    ) : null}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell
+                colSpan={CategoryColumns.length + 1}
+                className="text-center text-gray-500"
+              >
+                No data available
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
 
 export default function CategoryManager() {
-  const router = useRouter();
-
   const [refreshKey, setRefreshKey] = useState(0); // State to refresh data
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const router = useRouter();
 
   const { categories, isLoading, isError, pagination } = CategoriesList(
     currentPage,
@@ -103,7 +217,6 @@ export default function CategoryManager() {
 
   // State for the form
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= pagination.total_page) {
@@ -125,7 +238,7 @@ export default function CategoryManager() {
   };
   return (
     <>
-      <div className="container mx-auto py-10 w-max-6xl">
+      <Container>
         <Heading name="Categories Page" desc="Manage your categories here" />
 
         <div className="md:flex col flex-col-2 md:flex-row justify-between items-center mb-6">
@@ -197,106 +310,23 @@ export default function CategoryManager() {
           </div>
         </div>
         <div className="rounded-md border">
-          {isLoading ? (
-            <Progress value={33} />
-          ) : isError ? (
-            <p>Error loading roles</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10">
-                    <input
-                      type="checkbox"
-                      onChange={(e) =>
-                        setSelectedRoles(
-                          e.target.checked ? categories.map((r) => r.id) : []
-                        )
-                      }
-                      checked={selectedRoles.length === categories.length}
-                    />
-                  </TableHead>
-                  {CategoryColumns.map((col) => (
-                    <TableHead key={col.key} className={col.className}>
-                      {col.label}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {categories && categories.length > 0 ? (
-                  categories.map((category) => (
-                    <TableRow key={category.id}>
-                      <TableCell>
-                        <input
-                          type="checkbox"
-                          checked={selectedCategories.includes(category.id)}
-                          onChange={() => handleSelectCategory(category.id)}
-                        />
-                      </TableCell>
-                      {CategoryColumns.map((col) => {
-                        return (
-                          <TableCell key={col.key} className={col.className}>
-                            {col.key === 'id'
-                              ? category.id.substring(0, 8) + '...'
-                              : ''}
-                            {col.key === 'detail' ? (
-                              <div className="justify-center">
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  onClick={() =>
-                                    router.push(`/categories/${category.slug}`)
-                                  }
-                                >
-                                  <Eye className="h-4 w-4" />
-                                  <span className="sr-only">Detail</span>
-                                </Button>
-                              </div>
-                            ) : null}
-                            {col.key === 'title' ? category.title : ''}
-                            {col.key === 'actions' ? (
-                              <div className="flex justify-end gap-2">
-                                <Button variant="outline" size="icon">
-                                  <Pencil className="h-4 w-4" />
-                                  <span className="sr-only">Edit</span>
-                                </Button>
-                                <Button
-                                  variant="outline"
-                                  size="icon"
-                                  className="text-destructive"
-                                  onClick={() => handleDeleteClick(category.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                  <span className="sr-only">Delete</span>
-                                </Button>
-                              </div>
-                            ) : null}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={CategoryColumns.length + 1}
-                      className="text-center text-gray-500"
-                    >
-                      No data available
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          )}
+          <CategoryTable
+            categories={categories}
+            isLoading={isLoading}
+            isError={isError}
+            selectedCategories={selectedCategories}
+            setSelectedCategories={setSelectedCategories}
+            handleSelectCategory={handleSelectCategory}
+            handleDeleteClick={handleDeleteClick}
+            router={router}
+          />
         </div>
         <CustomPagination
           currentPage={currentPage}
           totalPage={pagination.total_page}
           onPageChange={handlePageChange}
         />
-      </div>
+      </Container>
       {/* Edit role */}
       <ConfirmDialog
         open={deleteDialogOpen}
