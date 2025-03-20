@@ -24,6 +24,9 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - Design a new NoResults components
+- Add category list of documentation
+- Add Documentation page
+- Add Api for category & documentation
 
 ### Changed
 

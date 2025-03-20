@@ -307,3 +307,110 @@ export interface CreateProductPage {
 // ========================
 // End Product
 // ========================
+
+/**
+ * ==========================
+ *  @DOCUMENT @CATEGORY
+ * ==========================
+ */
+
+/**
+ * ==========================
+ *  @CATEGORY
+ * ==========================
+ */
+
+/*
+  Category Attribute Declaration
+*/
+interface DocsCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  subcategories: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchDocsCategoryListResponse {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: DocsCategory[];
+}
+
+/*
+  Category Detail Attribute Declaration
+*/
+interface CategoryDetail {
+  id: string;
+  title: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FetchCategoryDetailResponse {
+  status: string;
+  data: CategoryDetail;
+}
+
+/*
+  Create Category
+*/
+
+export interface CreateDocsCategoryItem {
+  name: string;
+  slug: string;
+  subcategories: string[];
+}
+
+/*
+  @Document
+*/
+
+export interface EditCategoryItem {
+  title: string;
+}
+
+/**
+ * ==========================
+ *  @DOCUMENT
+ * ==========================
+ */
+
+interface CategoryDocs {
+  _id: string;
+  name: string;
+  slug: string;
+  subcategories: string[];
+}
+
+interface Docs {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  description: string;
+  link?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  category: CategoryDocs;
+}
+
+export interface FetchDocsListResponse {
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalDocs: number;
+    totalPages: number;
+  };
+  data: Docs[];
+}
+
+// ========================
+// End Category
+// ========================

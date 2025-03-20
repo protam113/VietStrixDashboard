@@ -7,11 +7,12 @@
  *
  * @desc Base Services URL
  */
-
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 const authService = process.env.NEXT_PUBLIC_Auth_Service;
 const version = process.env.NEXT_PUBLIC_Version;
+const versionDoc = process.env.NEXT_PUBLIC_Document_Version;
 const productService = process.env.NEXT_PUBLIC_Product_Service;
+const docsURL = process.env.NEXT_PUBLIC_DOCUMENT_BASE_URL;
 
 /**
  * ==========================
@@ -32,6 +33,12 @@ const apiServiceAuth = `${baseURL}${authService}${version}`;
  */
 
 const apiServiceProduct = `${baseURL}${productService}${version}`;
+
+/**
+ * ========== @URL For Product Service ==========
+ */
+
+const apiServiceDocument = `${docsURL}/api${versionDoc}`;
 
 /**
  * ========== @Endpoints ==========
@@ -72,10 +79,10 @@ const endpoints = {
   //      users: process.env.NEXT_PUBLIC_USERS,
   //      blocked: process.env.NEXT_PUBLIC_BLOCKED,
 
-  //      //queue
-  //      queueApprove: process.env.NEXT_PUBLIC_QUEUE_BROWSE,
-  //      activeUser: process.env.NEXT_PUBLIC_ACTIVE_USER,
-  //      queues: process.env.NEXT_PUBLIC_QUEUES,
+  //document
+  documents: process.env.NEXT_PUBLIC_Documents,
+  document: process.env.NEXT_PUBLIC_Document,
+  cateDocs: process.env.NEXT_PUBLIC_Category_Documents,
 
   //      //category(thể loại)
   //      category: process.env.NEXT_PUBLIC_CATEGORY,
@@ -89,4 +96,4 @@ const endpoints = {
   //      banner: process.env.NEXT_PUBLIC_BANNER
 };
 
-export { apiServiceAuth, apiServiceProduct, endpoints };
+export { apiServiceAuth, apiServiceProduct, apiServiceDocument, endpoints };
