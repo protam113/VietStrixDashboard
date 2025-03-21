@@ -3,7 +3,7 @@ import { apiServiceAuth, apiServiceProduct, apiServiceDocument } from './api';
 import { logDebug } from '@/lib/logger';
 
 const getApiKey = () => process.env.NEXT_PUBLIC_API_KEY || '';
-const getPrivateApiKey = () => process.env.NEXT_PRIVATE_DOC_API_KEY || '';
+const getPrivateApiKey = () => process.env.NEXT_PUBLIC_DOC_API_KEY || '';
 
 const apiKey = getApiKey();
 const apiPrivateKey = getPrivateApiKey();

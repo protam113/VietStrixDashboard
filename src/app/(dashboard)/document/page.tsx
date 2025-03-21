@@ -1,59 +1,51 @@
 'use client';
 
-import Heading from '@/components/heading/Heading';
-import { DocsCategoriesList } from '@/lib/data/docsCategoriesLib';
-import { Loader2 } from 'lucide-react';
 import React from 'react';
+import Heading from '@/components/heading/Heading';
 
 const Page = () => {
-  const { categories, isLoading, isError } = DocsCategoriesList(
-    1,
-    { page_size: 10 },
-    0
-  );
-
   return (
-    <main className="container mx-auto py-4 w-max-6xl">
-      <Heading name="Document" />
+    <main className="container mx-auto flex flex-col items-center text-center py-16 px-4 max-w-4xl">
+      {/* Tiêu đề chính */}
+      <Heading name="📖Welcome to the Document Center!" />
 
-      <div className="mt-10">
-        {isLoading ? (
-          <div className="flex flex-col items-center">
-            <Loader2 className="w-12 h-12 animate-spin text-gray-500" />
-            <h2 className="text-2xl font-semibold mt-4">
-              Loading categories...
-            </h2>
-          </div>
-        ) : isError ? (
-          <p className="text-red-500 text-center">Failed to load categories.</p>
-        ) : (
-          <ul className="list-disc pl-5 space-y-4">
-            {categories.map(
-              (category: {
-                _id: string;
-                name: string;
-                subcategories: string[];
-              }) => (
-                <li
-                  key={category._id}
-                  className="text-lg font-medium text-gray-800"
-                >
-                  {category.name}
-                  {category.subcategories.length > 0 && (
-                    <ul className="list-circle pl-5 mt-1 space-y-1 text-gray-600">
-                      {category.subcategories.map((sub, index) => (
-                        <li key={index} className="text-base">
-                          {sub}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              )
-            )}
-          </ul>
-        )}
+      {/* Mô tả ngắn gọn */}
+      <p className="text-gray-600 text-lg mt-4 max-w-2xl">
+        Here you will find all the detailed instructions and documentation about
+        our system. Start now to discover the interesting things!🚀
+      </p>
+
+      {/* Các danh mục tài liệu */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 w-full max-w-3xl">
+        <div className="p-6 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
+          <h3 className="text-lg font-semibold">🚀 Bắt đầu</h3>
+          <p className="text-gray-500 text-sm mt-2">
+            Basic tutorial to get you familiar with the system.
+          </p>
+        </div>
+
+        <div className="p-6 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
+          <h3 className="text-lg font-semibold">💡 Tính năng</h3>
+          <p className="text-gray-500 text-sm mt-2">
+            Learn more about the featured features.{' '}
+          </p>
+        </div>
+
+        <div className="p-6 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition">
+          <h3 className="text-lg font-semibold">⚙️ Hướng dẫn</h3>
+          <p className="text-gray-500 text-sm mt-2">
+            Steps to install, integrate and use the service.{' '}
+          </p>
+        </div>
       </div>
+
+      {/* Nút bắt đầu */}
+      {/* <Link 
+        href="/docs"
+        className="mt-10 px-6 py-3 bg-blue-600 text-white text-lg font-medium rounded-lg shadow hover:bg-blue-700 transition"
+      >
+        Khám phá tài liệu 📚
+      </Link> */}
     </main>
   );
 };

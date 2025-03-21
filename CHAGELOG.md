@@ -19,6 +19,22 @@ All notable changes to this project will be documented in this file.
 
 - Removed `moment.js`, replaced with `date-fns` to reduce bundle size.
 
+## [1.0.5] - 2025-03-21
+
+### Added
+
+- Design a new NoResults components
+- Add document page
+- Add documentation page layout
+- Add logic for this documentation page
+- Add documentation detail page
+
+### Changed
+
+### Fixed
+
+---
+
 ## [1.0.4] - 2025-03-20
 
 ### Added

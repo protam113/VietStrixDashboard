@@ -84,6 +84,17 @@ const endpoints = {
   document: process.env.NEXT_PUBLIC_Document,
   cateDocs: process.env.NEXT_PUBLIC_Category_Documents,
 
+  // contact
+  contacts: process.env.NEXT_PUBLIC_CONTACTS,
+  contact: process.env.NEXT_PUBLIC_CONTACT,
+  contactUpdate: process.env.NEXT_PUBLIC_UpdateCONTACT,
+
+  //Blog
+  blogs: process.env.NEXT_PUBLIC_Blogs,
+  blog: process.env.NEXT_PUBLIC_Blog,
+  cateBlog: process.env.NEXT_PUBLIC_Category_Blogs,
+  cateBlogDetail: process.env.NEXT_PUBLIC_Cateogry_Blog,
+
   //      //category(thể loại)
   //      category: process.env.NEXT_PUBLIC_CATEGORY,
   //      categories: process.env.NEXT_PUBLIC_CATEGORIES,

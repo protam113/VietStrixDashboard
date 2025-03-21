@@ -52,7 +52,7 @@ const data = {
     },
     {
       title: 'Blog',
-      url: '#',
+      url: '/blogs',
       icon: ComponentsIcons.ShoppingBasket,
     },
     {
@@ -96,7 +96,7 @@ const data = {
     },
     {
       title: 'Contacts',
-      url: '#',
+      url: '/contacts',
       icon: ComponentsIcons.Contact,
     },
     // {

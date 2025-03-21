@@ -411,6 +411,97 @@ export interface FetchDocsListResponse {
   data: Docs[];
 }
 
+export interface DocumentDetailResponse {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  description: string;
+  link?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  category: CategoryDocs;
+}
+
 // ========================
-// End Category
+// End DOCUMENT & Category
 // ========================
+
+/**
+ * ==========================
+ *  @CONTACT
+ * ==========================
+ */
+
+interface ContactList {
+  _id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  message: string;
+  link: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchContactListResponse {
+  pagination: {
+    currentPage: number;
+    pageSize: number;
+    totalDocs: number;
+    totalPages: number;
+  };
+  data: ContactList[];
+}
+
+/*
+  Update status
+*/
+
+export interface UpdateContactStatus {
+  status: string;
+}
+
+// ========================
+// End Contact
+// ========================
+
+/**
+ * ==========================
+ *  @BLOG_CATEGORY
+ * ==========================
+ */
+interface BlogChildCategory {
+  _id: string;
+  name: string;
+  slug: string;
+}
+
+interface BlogCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  subcategories: BlogChildCategory[]; // Cập nhật đây là một mảng các BlogCategory (thay vì chỉ lưu ID)
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchBlogCategoryListResponse {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: BlogCategory[];
+}
+
+/*
+  Create Blog Category
+*/
+
+export interface CreateBlogCategoryItem {
+  name: string;
+  slug: string;
+  subcategories?: string[];
+}

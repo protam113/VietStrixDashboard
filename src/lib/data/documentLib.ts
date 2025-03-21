@@ -1,7 +1,11 @@
 'use client';
 
-import { useDocumentList } from '@/hooks/Document/useDocument';
+import {
+  useDocumentDetail,
+  useDocumentList,
+} from '@/hooks/Document/useDocument';
 import { Filters } from '@/types/types';
+import { logDebug } from '../logger';
 
 export const DocumentList = (
   currentPage: number,
@@ -15,27 +19,33 @@ export const DocumentList = (
   );
 
   // Đảm bảo có giá trị mặc định cho pagination
-  const pagination = data?.pagination ?? {
-    currentPage: 1,
-    totalPages: 1,
-    pageSize: 10,
-    totalDocs: 0,
-  };
+  const pagination = data?.pagination ?? { currentPage: 1, totalPages: 1 };
 
   // Lấy danh sách tài liệu (docs) từ API
   const docs = data?.data ?? [];
-
-  // Kiểm tra có trang tiếp theo không
-  const nextPage =
-    pagination.currentPage < pagination.totalPages
-      ? pagination.currentPage + 1
-      : null;
 
   return {
     docs,
     isLoading,
     isError,
     pagination,
-    nextPage,
+  };
+};
+
+// DocumentDetail.ts
+export const DocumentDetail = (documentSlug: string, refreshKey: number) => {
+  const { data, isLoading, isError } = useDocumentDetail(
+    documentSlug,
+    refreshKey
+  );
+  logDebug('🐞 Data:', data);
+
+  const document = data;
+  logDebug('🐞 Extracted document:', document);
+
+  return {
+    document,
+    isLoading,
+    isError,
   };
 };

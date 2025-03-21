@@ -69,3 +69,23 @@ export const ProductColumns = [
   { key: 'categories', label: 'Categories', className: 'font-medium' },
   { key: 'actions', label: 'Actions', className: 'text-right' },
 ];
+
+/**
+ * ==========================
+ * 📌 @Contact
+ * ==========================
+ */
+
+export const ContactColumns = [
+  {
+    key: 'id',
+    label: 'ID',
+    className: 'font-mono text-sm text-muted-foreground',
+  },
+  { key: 'number', label: 'Number', className: 'font-medium' },
+  { key: 'name', label: 'Name', className: 'font-medium' },
+  { key: 'phone_number', label: 'phone_number', className: 'font-medium' },
+  { key: 'email', label: 'Email', className: 'font-medium' },
+  { key: 'status', label: 'Status', className: 'font-medium' },
+  { key: 'actions', label: 'Actions', className: 'text-right' },
+];

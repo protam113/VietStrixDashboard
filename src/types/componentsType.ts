@@ -71,6 +71,20 @@ export interface ProductTableProps {
 
 /**
  * ==========================
+ * 📌 @props ContactTableProps
+ * ==========================
+ */
+
+export interface ContactTableProps {
+  contacts: any[];
+  isLoading: boolean;
+  isError: boolean;
+  selectedContact: string[];
+  onSelectContact: (id: string) => void;
+}
+
+/**
+ * ==========================
  * 📌 @props CategoryTableProps
  * ==========================
  */

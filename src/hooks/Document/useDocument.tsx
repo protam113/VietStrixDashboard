@@ -4,7 +4,7 @@ import { endpoints } from '@/api/api';
 import {
   Filters,
   FetchDocsListResponse,
-  CreateDocsCategoryItem,
+  DocumentDetailResponse,
 } from '@/types/types';
 import { handleDocumentAPI } from '@/api/axiosClient';
 import { toast } from 'sonner';
@@ -72,4 +72,53 @@ const useDocumentList = (
  * ========== END OF @HOOK useCategoriesList ==========
  */
 
-export { useDocumentList };
+/**
+ * ==========================
+ * 📌 @HOOK useDocumentDetail
+ * ==========================
+ *
+ * @desc Custom hook to get detail of document
+ * @param {string} slug Slug of document
+ * @returns {Document} Detail of document
+ */
+
+const fetchDocumentDetail = async (
+  slug: string
+): Promise<DocumentDetailResponse> => {
+  try {
+    // Check if slug is valid
+    if (!slug) {
+      throw new Error('Slug is required');
+    }
+    // Check if endpoint is valid
+    if (!endpoints.document) {
+      throw null;
+    }
+    // Call API
+    const response = await handleDocumentAPI(
+      `${endpoints.document.replace(':slug', slug)}`,
+      'GET',
+      null
+    );
+    return response;
+  } catch (error) {
+    console.error('Error fetching document detail:', error);
+    throw error;
+  }
+};
+
+// Custom hook to get detail of category
+const useDocumentDetail = (slug: string, refreshKey: number) => {
+  return useQuery<DocumentDetailResponse, Error>({
+    queryKey: ['documentDetail', slug, refreshKey],
+    queryFn: () => fetchDocumentDetail(slug),
+    enabled: !!slug,
+    staleTime: 60000,
+  });
+};
+
+/**
+ * ========== END OF @HOOK useDocumentDetail ==========
+ */
+
+export { useDocumentList, useDocumentDetail };
