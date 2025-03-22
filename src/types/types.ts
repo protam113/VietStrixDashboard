@@ -505,3 +505,49 @@ export interface CreateBlogCategoryItem {
   slug: string;
   subcategories?: string[];
 }
+/**
+ * ==========================
+ *  @BLOG
+ * ==========================
+ */
+
+interface BlogList {
+  _id: string;
+  title: string;
+  content: string;
+  description: string;
+  link: string;
+  slug: string;
+  categories: BlogChildCategory[];
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchBlogListResponse {
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  data: BlogList[];
+}
+
+/**
+ * ==========================
+ *  @BLOG_DETAIL
+ * ==========================
+ */
+export interface BlogDetailResponse {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  categories: BlogChildCategory[];
+  type: string;
+  description: string;
+  link?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

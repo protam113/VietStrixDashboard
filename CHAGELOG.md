@@ -19,6 +19,21 @@ All notable changes to this project will be documented in this file.
 
 - Removed `moment.js`, replaced with `date-fns` to reduce bundle size.
 
+## [1.0.6] - 2025-03-22
+
+### Added
+
+- Add blog page
+- Add blog page layout
+- Add logic for this blog page
+- Add hook for get blog by category, blogs , blog
+
+### Changed
+
+### Fixed
+
+---
+
 ## [1.0.5] - 2025-03-21
 
 ### Added

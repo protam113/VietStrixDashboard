@@ -1,6 +1,8 @@
 'use client';
 
+import Container from '@/components/container/Container';
 import Heading from '@/components/heading/Heading';
+import BlogListData from '@/components/pages/Blog/BlogList';
 import { BlogCategoriesList } from '@/lib/data/blogCategoriesLib';
 import React from 'react';
 
@@ -13,7 +15,7 @@ const Page = () => {
   );
 
   return (
-    <div>
+    <Container>
       {/* Heading */}
       <Heading name="Blog Page" />
 
@@ -43,7 +45,8 @@ const Page = () => {
           </div>
         ))}
       </div>
-    </div>
+      <BlogListData />
+    </Container>
   );
 };
 

@@ -15,18 +15,9 @@ export const BlogCategoriesList = (
   );
 
   // Đảm bảo pagination luôn có giá trị mặc định
-  const pagination = data?.pagination ?? {
-    page: 1,
-    totalPages: 1,
-    limit: 10,
-    total: 0,
-  };
-
-  // Truy xuất totalPages từ pagination
-  const totalPages = pagination.totalPages;
+  const pagination = data?.pagination ?? { currentPage: 1, totalPages: 1 };
 
   // Tính toán nextPage
-  const nextPage = pagination.page < totalPages ? pagination.page + 1 : null;
 
   const categories = data?.data ?? [];
 
@@ -35,6 +26,5 @@ export const BlogCategoriesList = (
     isLoading,
     isError,
     pagination,
-    nextPage,
   };
 };

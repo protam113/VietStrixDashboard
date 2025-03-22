@@ -2,10 +2,11 @@
 
 import React from 'react';
 import Heading from '@/components/heading/Heading';
+import Container from '@/components/container/Container';
 
 const Page = () => {
   return (
-    <main className="container mx-auto flex flex-col items-center text-center py-16 px-4 max-w-4xl">
+    <Container>
       {/* Tiêu đề chính */}
       <Heading name="📖Welcome to the Document Center!" />
 
@@ -46,7 +47,7 @@ const Page = () => {
       >
         Khám phá tài liệu 📚
       </Link> */}
-    </main>
+    </Container>
   );
 };
 
