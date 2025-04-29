@@ -5,6 +5,8 @@ import {
   Filters,
   FetchBlogListResponse,
   BlogDetailResponse,
+  UpdateStatus,
+  CreateBlogItem,
 } from '@/types/types';
 import { handleDocumentAPI } from '@/api/axiosClient';
 import { toast } from 'sonner';
@@ -64,7 +66,8 @@ const useBlogList = (
     queryKey: ['blogList', page, filters, refreshKey],
     queryFn: () => fetchBlogList(page, filters),
     enabled: page > 0,
-    staleTime: 60000,
+    staleTime: process.env.NODE_ENV === 'development' ? 1000 : 300000,
+    gcTime: 30 * 60 * 1000, //
   });
 };
 
@@ -89,12 +92,12 @@ const fetchBlogDetail = async (slug: string): Promise<BlogDetailResponse> => {
       throw new Error('Slug is required');
     }
     // Check if endpoint is valid
-    if (!endpoints.blog) {
+    if (!endpoints.blogDetail) {
       throw null;
     }
     // Call API
     const response = await handleDocumentAPI(
-      `${endpoints.blog.replace(':slug', slug)}`,
+      `${endpoints.blogDetail.replace(':slug', slug)}`,
       'GET',
       null
     );
@@ -111,7 +114,7 @@ const useBlogDetail = (slug: string, refreshKey: number) => {
     queryKey: ['blogDetail', slug, refreshKey],
     queryFn: () => fetchBlogDetail(slug),
     enabled: !!slug,
-    staleTime: 60000,
+    staleTime: process.env.NODE_ENV === 'development' ? 1000 : 300000,
   });
 };
 
@@ -119,4 +122,145 @@ const useBlogDetail = (slug: string, refreshKey: number) => {
  * ========== END OF @HOOK useBlogDetail ==========
  */
 
-export { useBlogList, useBlogDetail };
+const DeleteBlog = async (blogID: string) => {
+  try {
+    if (!endpoints.blog) {
+      throw new Error('blog endpoint is not defined.');
+    }
+
+    const response = await handleDocumentAPI(
+      `${endpoints.blog.replace(':id', blogID)}`,
+      'DELETE'
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      'Error deleting Blog:',
+      error?.response?.data || error.message
+    );
+    throw new Error(error?.response?.data?.message || 'Failed to delete Blog');
+  }
+};
+
+const useDeleteBlog = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: DeleteBlog, // Directly pass the function
+    onSuccess: () => {
+      toast.success('Delete Blog Success!');
+      queryClient.invalidateQueries({ queryKey: ['blogList'] });
+    },
+    onError: (error: any) => {
+      console.error(error.message || 'Failed to delete Blog.');
+      toast.error(error.message || 'Failed to delete Blog.');
+    },
+  });
+};
+
+const EditStatus = async (updateStatus: UpdateStatus, postId: string) => {
+  const formData = new FormData();
+
+  for (const key in updateStatus) {
+    if (Object.prototype.hasOwnProperty.call(updateStatus, key)) {
+      const value = updateStatus[key as keyof UpdateStatus];
+
+      if (Array.isArray(value)) {
+        // If the value is an array, append each element
+        value.forEach((v) => formData.append(key, v));
+      } else if (typeof value === 'string') {
+        // If the value is a string, append to FormData
+        formData.append(key, value);
+      }
+    }
+  }
+
+  try {
+    if (!endpoints.blogStatus) {
+      throw null;
+    }
+
+    const url = endpoints.blogStatus.replace(':id', postId);
+
+    const response = await handleDocumentAPI(url, 'PATCH', formData);
+    return response.data;
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message || 'Failed to update service'
+    );
+  }
+};
+
+const useUpdateBlogStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      updateStatus,
+      postId,
+    }: {
+      updateStatus: UpdateStatus;
+      postId: string;
+    }) => {
+      return EditStatus(updateStatus, postId);
+    },
+    onSuccess: () => {
+      toast.success('Update status successfully!');
+      queryClient.invalidateQueries({ queryKey: ['blogList'] });
+    },
+  });
+};
+
+const CreateBlog = async (newBlog: CreateBlogItem) => {
+  const formData = new FormData();
+
+  for (const key in newBlog) {
+    const value = newBlog[key as keyof CreateBlogItem];
+
+    if (key === 'file' && Array.isArray(value)) {
+      value.forEach((file) => formData.append('file', file));
+    } else if (value) {
+      // Thêm các trường khác
+      formData.append(key, value as string);
+    }
+  }
+
+  try {
+    const response = await handleDocumentAPI(
+      `${endpoints.blogs}`,
+      'POST',
+      formData
+    );
+
+    return response.data;
+  } catch (error: any) {
+    console.error('Error creating blog:', error.response?.data);
+    throw new Error(error.response?.data?.message || 'Failed to create blog');
+  }
+};
+
+const useCreateBlog = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (newBlog: CreateBlogItem) => {
+      return CreateBlog(newBlog);
+    },
+    onSuccess: () => {
+      toast.success('Create blog Success!');
+      queryClient.invalidateQueries({ queryKey: ['blogList'] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to create blog.');
+      console.error(error.message || 'Failed to create blog.');
+    },
+  });
+};
+
+export {
+  useBlogList,
+  useBlogDetail,
+  useDeleteBlog,
+  useUpdateBlogStatus,
+  useCreateBlog,
+};

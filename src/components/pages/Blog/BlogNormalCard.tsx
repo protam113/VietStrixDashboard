@@ -5,6 +5,7 @@ import { Star } from 'lucide-react';
 interface Blog {
   _id: string;
   title: string;
+  slug: string;
   //   categories: string;
   type: string;
   //   image: string;
@@ -16,7 +17,7 @@ interface BlogCardProps {
 
 export function BlogNormalCard({ blog }: BlogCardProps) {
   return (
-    <Link href="#" className="block">
+    <Link href={`/blogs/${blog.slug}`} className="block">
       <div className="group relative bg-white rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:scale-105 hover:z-10">
         <div className="relative aspect-[4/5] w-full overflow-hidden">
           {/* <Image

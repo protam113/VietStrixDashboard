@@ -28,7 +28,7 @@ export const DocsCategoriesList = (
   // Tính toán nextPage
   const nextPage = pagination.page < totalPages ? pagination.page + 1 : null;
 
-  const categories = data?.data ?? [];
+  const categories = data?.result ?? [];
 
   return {
     categories,

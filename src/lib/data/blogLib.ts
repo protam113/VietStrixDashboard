@@ -1,7 +1,6 @@
 'use client';
 
 import { Filters } from '@/types/types';
-import { logDebug } from '../logger';
 import { useBlogDetail, useBlogList } from '@/hooks/Blog/useBlog';
 
 export const BlogList = (
@@ -16,10 +15,10 @@ export const BlogList = (
   );
 
   // Đảm bảo có giá trị mặc định cho pagination
-  const pagination = data?.pagination ?? { currentPage: 1, totalPages: 1 };
+  const pagination = data?.pagination ?? { current_page: 1, total_page: 1 };
 
   // Lấy danh sách tài liệu (docs) từ API
-  const blogs = data?.data ?? [];
+  const blogs = data?.results ?? [];
 
   return {
     blogs,
@@ -29,13 +28,11 @@ export const BlogList = (
   };
 };
 
-// DocumentDetail.ts
-export const DocumentDetail = (documentSlug: string, refreshKey: number) => {
-  const { data, isLoading, isError } = useBlogDetail(documentSlug, refreshKey);
-  logDebug('🐞 Data:', data);
+// BlogDetailData.ts
+export const BlogDetailData = (slug: string, refreshKey: number) => {
+  const { data, isLoading, isError } = useBlogDetail(slug, refreshKey);
 
-  const blog = data;
-  logDebug('🐞 Extracted document:', document);
+  const blog = data?.result; // Changed from data?.data to data
 
   return {
     blog,

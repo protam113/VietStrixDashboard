@@ -11,13 +11,12 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-  SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { NavService } from './nav-services';
 import { NavSupport } from './nav-support';
 import { useAuthStore } from '@/store/authStore';
 import { NavRole } from './nav-role';
-import Link from 'next/link';
+import { NavBlog } from './nav-blog';
 
 // This is sample data.
 const data = {
@@ -32,6 +31,12 @@ const data = {
       title: 'Documentation',
       url: '/document',
       icon: ComponentsIcons.BookOpen,
+    },
+
+    {
+      title: 'Tracking',
+      url: '/users',
+      icon: ComponentsIcons.GroupIcon,
     },
   ],
   navService: [
@@ -50,11 +55,7 @@ const data = {
       url: '/products',
       icon: ComponentsIcons.ShoppingBasket,
     },
-    {
-      title: 'Blog',
-      url: '/blogs',
-      icon: ComponentsIcons.ShoppingBasket,
-    },
+
     {
       title: 'Categories',
       url: '/categories',
@@ -82,6 +83,39 @@ const data = {
       url: '/users',
       icon: ComponentsIcons.GroupIcon,
     },
+    {
+      title: 'SEO',
+      url: '/users',
+      icon: ComponentsIcons.GroupIcon,
+    },
+    {
+      title: 'System Logs',
+      url: '/users',
+      icon: ComponentsIcons.GroupIcon,
+    },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: ComponentsIcons.Settings2,
+    // },
+  ],
+  navBlog: [
+    {
+      title: 'Blog',
+      url: '/blogs',
+      icon: ComponentsIcons.ShoppingBasket,
+    },
+    {
+      title: 'Service',
+      url: '/blogs',
+      icon: ComponentsIcons.ShoppingBasket,
+    },
+    {
+      title: 'Project',
+      url: '/blogs',
+      icon: ComponentsIcons.ShoppingBasket,
+    },
+
     // {
     //   title: "Settings",
     //   url: "#",
@@ -99,11 +133,11 @@ const data = {
       url: '/contacts',
       icon: ComponentsIcons.Contact,
     },
-    // {
-    //   title: "Settings",
-    //   url: "#",
-    //   icon: ComponentsIcons.Settings2,
-    // },
+    {
+      title: 'FaQ',
+      url: '/faq',
+      icon: ComponentsIcons.Settings2,
+    },
   ],
 };
 
@@ -117,12 +151,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
         {userInfo?.role?.title === 'admin' && <NavRole items={data.navAuth} />}
         <NavService items={data.navService} />
-        <SidebarMenuButton tooltip="Blogs" className="ml-2">
-          <ComponentsIcons.Contact className="text-lg" />
-          <Link href="blogs">
-            <span className="text-lg">Blogs</span>
-          </Link>
-        </SidebarMenuButton>
+        <NavBlog items={data.navBlog} />
         <NavSupport items={data.navSupport} />
       </SidebarContent>
       <SidebarFooter>

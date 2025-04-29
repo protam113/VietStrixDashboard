@@ -22,7 +22,7 @@ export const DocumentList = (
   const pagination = data?.pagination ?? { currentPage: 1, totalPages: 1 };
 
   // Lấy danh sách tài liệu (docs) từ API
-  const docs = data?.data ?? [];
+  const docs = data?.result ?? [];
 
   return {
     docs,
@@ -40,7 +40,7 @@ export const DocumentDetail = (documentSlug: string, refreshKey: number) => {
   );
   logDebug('🐞 Data:', data);
 
-  const document = data;
+  const document = data?.data ?? null;
   logDebug('🐞 Extracted document:', document);
 
   return {

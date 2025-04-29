@@ -89,3 +89,21 @@ export const ContactColumns = [
   { key: 'status', label: 'Status', className: 'font-medium' },
   { key: 'actions', label: 'Actions', className: 'text-right' },
 ];
+
+/**
+ * ==========================
+ * 📌 @FAQ
+ * ==========================
+ */
+
+export const FaqColumns = [
+  {
+    key: '_id',
+    label: 'ID',
+    className: 'font-mono text-sm text-muted-foreground',
+  },
+  { key: 'question', label: 'Question', className: 'font-semibold' },
+
+  { key: 'status', label: 'Status', className: 'font-semibold' },
+  { key: 'actions', label: 'Actions', className: 'text-right' },
+];

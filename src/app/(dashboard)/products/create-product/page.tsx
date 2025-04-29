@@ -12,6 +12,7 @@ import { CreateProductItem } from '@/types/types';
 import { toast } from 'sonner';
 import CategoryList from '@/components/pages/products/create_product/categoryList';
 import ImageUploader from '@/components/pages/products/create_product/uploadImage';
+import { logDebug } from '@/lib/logger';
 
 const Page = () => {
   const { mutate: createProduct } = useCreateProduct();
@@ -40,7 +41,7 @@ const Page = () => {
   };
 
   const handleCreateProduct = async () => {
-    console.log('Final Product Data:', productData);
+    logDebug('Final Product Data:', productData);
     setLoading(true);
     try {
       if (productData.title.trim() === '') {

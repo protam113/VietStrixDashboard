@@ -1,12 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
-import { apiServiceAuth, apiServiceProduct, apiServiceDocument } from './api';
+import { apiServiceAuth, apiServiceProduct, apiServiceBlog } from './api';
 import { logDebug } from '@/lib/logger';
 
 const getApiKey = () => process.env.NEXT_PUBLIC_API_KEY || '';
-const getPrivateApiKey = () => process.env.NEXT_PUBLIC_DOC_API_KEY || '';
 
 const apiKey = getApiKey();
-const apiPrivateKey = getPrivateApiKey();
 
 /**
  * ==========================
@@ -55,13 +53,13 @@ const productApi = () => {
  */
 const docsApi = () => {
   return axios.create({
-    baseURL: apiServiceDocument,
+    baseURL: apiServiceBlog,
     headers: {
-      'api-key': `${apiPrivateKey}`,
-      'Content-Type': 'application/json',
+      'api-key': `${apiKey}`,
+      'Content-Type': 'application/form-data',
     },
-    // withCredentials: true,
-    // timeout: 15000, // 15 seconds timeout
+    withCredentials: true,
+    timeout: 15000,
   });
 };
 
@@ -250,13 +248,13 @@ export const handleDocumentAPI = async <T = any>(
   data?: any
 ): Promise<T> => {
   logDebug('⬆️ API REQUEST:', {
-    url: `${apiServiceDocument}${url}`,
+    url: `${apiServiceBlog}${url}`,
     method,
     data: method !== 'GET' ? data : undefined,
     params: method === 'GET' ? data : undefined,
     timestamp: new Date().toISOString(),
   });
-  logDebug('Debug', apiServiceDocument);
+  logDebug('Debug', apiServiceBlog);
   try {
     const apiInstance = docsApi();
 
@@ -278,7 +276,7 @@ export const handleDocumentAPI = async <T = any>(
 
     // Log successful response
     logDebug('✅ API RESPONSE SUCCESS:', {
-      url: `${apiServiceDocument}${url}`,
+      url: `${apiServiceBlog}${url}`,
       method,
       status: response.status,
       statusText: response.statusText,
@@ -294,7 +292,7 @@ export const handleDocumentAPI = async <T = any>(
     if (axiosError.response) {
       // The request was made and the server responded with an error status code
       console.error('❌ API ERROR:', {
-        url: `${apiServiceDocument}${url}`,
+        url: `${apiServiceBlog}${url}`,
         method,
         status: axiosError.response.status,
         statusText: axiosError.response.statusText,
@@ -304,7 +302,7 @@ export const handleDocumentAPI = async <T = any>(
     } else if (axiosError.request) {
       // The request was made but no response was received
       console.error('❌ API ERROR (NO RESPONSE):', {
-        url: `${apiServiceDocument}${url}`,
+        url: `${apiServiceBlog}${url}`,
         method,
         message: axiosError.message,
         timestamp: new Date().toISOString(),
@@ -312,7 +310,7 @@ export const handleDocumentAPI = async <T = any>(
     } else {
       // Something happened in setting up the request
       console.error('❌ API ERROR (SETUP):', {
-        url: `${apiServiceDocument}${url}`,
+        url: `${apiServiceBlog}${url}`,
         method,
         message: axiosError.message,
         timestamp: new Date().toISOString(),

@@ -10,11 +10,35 @@ export interface Filters {
 
 /**
  * ==========================
+ *  @PAGINATION
+ * ==========================
+ */
+
+interface Pagination {
+  total_page: number;
+  page_size: number;
+  current_page: number;
+  total: number;
+}
+
+/**
+ * ==========================
  * @PushButtonProps
  * ==========================
  */ export interface PushButtonProps {
   href: string;
   label: string;
+}
+
+/**
+ * ==========================
+ *  @UPLOAD_MEDIA
+ * ==========================
+ */
+
+export interface UploadMedia {
+  path: string;
+  file: File;
 }
 
 /**
@@ -37,9 +61,7 @@ export interface ImageItem {
  * @Role
  * ==========================
  */
-/*
-  Role Attribute Declaration
-*/
+
 interface Role {
   id: string;
   title: string;
@@ -92,6 +114,15 @@ interface Employee {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface UserDataComponents {
+  id: string;
+  username: string;
+  email: string;
+  name: string;
+  roleTitle: string;
+  isActive: boolean;
 }
 
 export interface FetchEmployeeListResponse {
@@ -339,7 +370,7 @@ export interface FetchDocsCategoryListResponse {
     total: number;
     totalPages: number;
   };
-  data: DocsCategory[];
+  result: DocsCategory[];
 }
 
 /*
@@ -408,19 +439,23 @@ export interface FetchDocsListResponse {
     totalDocs: number;
     totalPages: number;
   };
-  data: Docs[];
+  result: Docs[];
 }
 
-export interface DocumentDetailResponse {
+interface DocumentDetail {
   _id: string;
   title: string;
   slug: string;
   content: string;
   description: string;
-  link?: string | null;
+  link?: string | null; // Cho phép null hoặc undefined
   createdAt: string;
   updatedAt: string;
-  category: CategoryDocs;
+  category: CategoryDocs; // Hoặc CategoryDocs nếu API trả về object đầy đủ
+}
+
+export interface DocumentDetailResponse {
+  data: DocumentDetail;
 }
 
 // ========================
@@ -433,25 +468,26 @@ export interface DocumentDetailResponse {
  * ==========================
  */
 
+interface ContactService {
+  _id: string;
+  title: string;
+}
+
 interface ContactList {
   _id: string;
   name: string;
   email: string;
   phone_number: string;
   message: string;
-  link: string;
+  link?: string;
+  service?: ContactService;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface FetchContactListResponse {
-  pagination: {
-    currentPage: number;
-    pageSize: number;
-    totalDocs: number;
-    totalPages: number;
-  };
-  data: ContactList[];
+  pagination: Pagination;
+  results: ContactList[];
 }
 
 /*
@@ -471,29 +507,28 @@ export interface UpdateContactStatus {
  *  @BLOG_CATEGORY
  * ==========================
  */
-interface BlogChildCategory {
-  _id: string;
-  name: string;
-  slug: string;
-}
+/**
+ * ==========================
+ *  @CATEGORY
+ * ==========================
+ */
 
-interface BlogCategory {
+/*
+  Category Attribute Declaration
+*/
+export interface BlogCategory {
   _id: string;
-  name: string;
+  title: string;
   slug: string;
-  subcategories: BlogChildCategory[]; // Cập nhật đây là một mảng các BlogCategory (thay vì chỉ lưu ID)
+  status: string;
+  user?: UserDataComponents;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface FetchBlogCategoryListResponse {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-  data: BlogCategory[];
+  pagination: Pagination;
+  results: BlogCategory[];
 }
 
 /*
@@ -505,33 +540,54 @@ export interface CreateBlogCategoryItem {
   slug: string;
   subcategories?: string[];
 }
+
+interface BlogCategoryDetail {
+  id: string;
+  title: string;
+  slug: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FetchBlogCategoryDetailResponse {
+  status: string;
+  data: BlogCategoryDetail;
+}
+
 /**
  * ==========================
  *  @BLOG
  * ==========================
  */
 
+/**
+ * ==========================
+ *  @BLOG_CATEGORY
+ * ==========================
+ */
+interface BlogChildCategory {
+  _id: string;
+  name: string;
+}
+
 interface BlogList {
   _id: string;
   title: string;
   content: string;
   description: string;
+  file: string;
   link: string;
   slug: string;
-  categories: BlogChildCategory[];
-  type: string;
-  createdAt: string;
-  updatedAt: string;
+  views: number;
+  user?: UserDataComponents;
+  category: BlogChildCategory[];
+  status: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
-
 export interface FetchBlogListResponse {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-  data: BlogList[];
+  pagination: Pagination;
+  results: BlogList[];
 }
 
 /**
@@ -539,15 +595,196 @@ export interface FetchBlogListResponse {
  *  @BLOG_DETAIL
  * ==========================
  */
-export interface BlogDetailResponse {
+export interface BlogDetail {
   _id: string;
   title: string;
   slug: string;
   content: string;
-  categories: BlogChildCategory[];
-  type: string;
+  file: string;
+  category: BlogChildCategory;
+  user?: UserDataComponents;
+  views: number;
+  status: string;
   description: string;
   link?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface BlogDetailResponse {
+  status: string;
+  result: BlogDetail;
+}
+
+/**
+ * ==========================
+ *  @BLOG_CREATED
+ * ==========================
+ */
+
+export interface CreateBlogItem {
+  title: string;
+  content: string;
+  file: File;
+  category: string;
+  description: string;
+  status: string;
+  link?: string | null;
+}
+
+/**
+ * ==========================
+ *  @FAQ
+ * ==========================
+ */
+
+interface FaQList {
+  _id: string;
+  question: string;
+  answer: string;
+  status: string;
+  user: UserDataComponents;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchFaQListResponse {
+  pagination: Pagination;
+  results: FaQList[];
+}
+
+export interface CreateFaQItem {
+  question: string;
+  answer: string;
+  status: string;
+}
+
+export interface UpdateFaQItem {
+  question?: string;
+  answer?: string;
+  status?: string;
+}
+
+/**
+ * ==========================
+ *  @SERVICE_DETAIL
+ * ==========================
+ */
+
+export interface ServiceDetail {
+  _id: string;
+  title: string;
+  slug: string;
+  file: string;
+  content: string;
+  price: number;
+  views: number;
+  status: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ServiceDetailResponse {
+  status: string;
+  result: ServiceDetail;
+}
+
+/**
+ * ==========================
+ *  @SERVICE_DETAIL
+ * ==========================
+ */
+
+export interface ServiceDetailResponse {
+  _id: string;
+  title: string;
+  slug: string;
+  file: string;
+  content: string;
+  price: number;
+  views: number;
+  status: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * ==========================
+ *  @SERVICE_Create
+ * ==========================
+ */
+
+export interface CreateServiceItem {
+  title: string;
+  file: File;
+  content: string;
+  price: string;
+  status?: string;
+  description: string;
+}
+
+/**
+ * ==========================
+ *  @UPDATE_STATUS
+ * ==========================
+ */
+
+export interface UpdateStatus {
+  status: string;
+}
+
+/**
+ * ==========================
+ *  @SERVICE
+ * ==========================
+ */
+
+interface ServiceList {
+  _id: string;
+  title: string;
+  content: string;
+  description: string;
+  file: string;
+  slug: string;
+  user?: UserDataComponents;
+  views: number;
+  price: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchServiceListResponse {
+  pagination: Pagination;
+  results: ServiceList[];
+}
+
+/**
+ * ==========================
+ *  @SEO
+ * ==========================
+ */
+
+export interface SeoData {
+  site_title: string;
+  site_description: string;
+  keywords: string[];
+  domain: string;
+  google_analytics_id?: string;
+  gtm_id?: string;
+  facebook_pixel_id?: string;
+  search_console_verification?: string;
+}
+
+export interface UpdateSeo {
+  site_title?: string;
+  site_description?: string;
+  domain?: string;
+  keywords?: string[];
+  google_analytics_id?: string;
+  gtm_id?: string;
+  facebook_pixel_id?: string;
+  search_console_verification?: string;
 }

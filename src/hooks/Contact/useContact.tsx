@@ -101,11 +101,11 @@ const EditStatus = async (
   }
 
   try {
-    if (!endpoints.contactUpdate) {
+    if (!endpoints.contact) {
       throw null;
     }
 
-    const url = endpoints.contactUpdate.replace(':id', contactId);
+    const url = endpoints.contact.replace(':id', contactId);
 
     const response = await handleDocumentAPI(url, 'PATCH', formData);
     return response.data;
@@ -140,4 +140,46 @@ const useUpdateStatus = () => {
  * ========== END OF @HOOK useUpdateStatus ==========
  */
 
-export { useContactList, useUpdateStatus };
+/**
+ * ========== END OF @HOOK useCreateContact ==========
+ */
+
+const DeleteContact = async (contactId: string) => {
+  try {
+    if (!endpoints.contact) {
+      throw new Error('Contact endpoint is not defined.');
+    }
+
+    const response = await handleDocumentAPI(
+      `${endpoints.contact.replace(':id', contactId)}`,
+      'DELETE'
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error(
+      'Error deleting Contact:',
+      error?.response?.data || error.message
+    );
+    throw new Error(
+      error?.response?.data?.message || 'Failed to delete Contact'
+    );
+  }
+};
+
+const useDeleteContact = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: DeleteContact, // Directly pass the function
+    onSuccess: () => {
+      toast.success('Delete Contact Success!');
+      queryClient.invalidateQueries({ queryKey: ['contactList'] });
+    },
+    onError: (error: any) => {
+      console.error(error.message || 'Failed to delete Contact.');
+      toast.error(error.message || 'Failed to delete Contact.');
+    },
+  });
+};
+
+export { useContactList, useUpdateStatus, useDeleteContact };

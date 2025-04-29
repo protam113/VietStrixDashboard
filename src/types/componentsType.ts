@@ -79,8 +79,7 @@ export interface ContactTableProps {
   contacts: any[];
   isLoading: boolean;
   isError: boolean;
-  selectedContact: string[];
-  onSelectContact: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 /**
@@ -98,4 +97,17 @@ export interface CategoryTableProps {
   handleSelectCategory: (id: string) => void;
   handleDeleteClick: (id: string) => void;
   router: ReturnType<typeof useRouter>; // ✅ Cách sửa đúng
+}
+
+/**
+ * ==========================
+ * 📌 @props FaqTableProps
+ * ==========================
+ */
+
+export interface FaqTableProps {
+  faqs: any[];
+  isLoading: boolean;
+  isError: boolean;
+  onDelete: (id: string) => void;
 }

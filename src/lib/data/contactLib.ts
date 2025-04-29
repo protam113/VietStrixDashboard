@@ -16,9 +16,9 @@ export const ContactList = (
     refreshKey
   );
 
-  const pagination = data?.pagination ?? { currentPage: 1, totalPages: 1 };
+  const pagination = data?.pagination ?? { current_page: 1, total_page: 1 };
 
-  const contacts = data?.data ?? [];
+  const contacts = data?.results ?? [];
   logDebug('🐞 Data:', contacts);
   return {
     contacts,
